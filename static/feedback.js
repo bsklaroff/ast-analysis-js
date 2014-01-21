@@ -68,7 +68,9 @@ $(function() {
     whitelist: [],
     blacklist: [],
     structure: [],
+    structureList: [],
     nonBlacklistNodes: nodeTypes,
+    nonWhiteBlacklistNodes: nodeTypes,
     nonListNodes: nodeTypes
   };
   editor = ace.edit('editor');
@@ -81,30 +83,56 @@ $(function() {
       e.preventDefault();
       $('.list_input').val('');
 
-      programSpec[listName].push(nodeType);
       if (listName === 'blacklist' || listName === 'whitelist') {
-        programSpec['nonBlacklistNodes'] = [];
-        programSpec['nonListNodes'] = [];
-        for (i = 0; i < nodeTypes.length; i++) {
-          if (programSpec['blacklist'].indexOf(nodeTypes[i]) === -1) {
-            programSpec['nonBlacklistNodes'].push(nodeTypes[i]);
-            if (programSpec['whitelist'].indexOf(nodeTypes[i]) === -1) {
+        programSpec[listName].push(nodeType);
+      } else {
+        if (programSpec['structureList'].indexOf(nodeType) === -1) {
+          programSpec['structureList'].push(nodeType);
+        }
+        // Handle structure nodes
+      }
+      programSpec['nonBlacklistNodes'] = [];
+      programSpec['nonWhiteBlacklistNodes'] = [];
+      programSpec['nonListNodes'] = [];
+      for (i = 0; i < nodeTypes.length; i++) {
+        if (programSpec['blacklist'].indexOf(nodeTypes[i]) === -1) {
+          programSpec['nonBlacklistNodes'].push(nodeTypes[i]);
+          if (programSpec['whitelist'].indexOf(nodeTypes[i]) === -1) {
+            programSpec['nonWhiteBlacklistNodes'].push(nodeTypes[i]);
+            if (programSpec['structureList'].indexOf(nodeTypes[i]) === -1) {
               programSpec['nonListNodes'].push(nodeTypes[i]);
             }
           }
         }
-      } else {
-        // Handle structure nodes
       }
 
-      $('#'+listName+'_list').append('<div>' + nodeType + '</div>');
+      refreshLists();
       refreshAutocompletes();
     };
   };
 
+  var refreshLists = function() {
+    var i, nodeType;
+    $('#whitelist_list').empty();
+    $('#blacklist_list').empty();
+    $('#structure_list').empty();
+    for (i = 0; i < programSpec['whitelist'].length; i++) {
+      nodeType = programSpec['whitelist'][i];
+      $('#whitelist_list').append('<div>' + nodeType + '</div>');
+    }
+    for (i = 0; i < programSpec['blacklist'].length; i++) {
+      nodeType = programSpec['blacklist'][i];
+      $('#blacklist_list').append('<div>' + nodeType + '</div>');
+    }
+    for (i = 0; i < programSpec['structureList'].length; i++) {
+      nodeType = programSpec['structureList'][i];
+      $('#structure_list').append('<div>' + nodeType + '</div>');
+    }
+  };
+
   var refreshAutocompletes = function() {
     $('#whitelist_input').autocomplete({
-      source: programSpec['nonListNodes'],
+      source: programSpec['nonWhiteBlacklistNodes'],
       select: genAddListItem('whitelist')
     });
     $('#blacklist_input').autocomplete({
