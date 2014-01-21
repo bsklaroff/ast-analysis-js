@@ -172,7 +172,7 @@ $(function() {
         '<button class="close">&times</button></div>'
       );
       $('#chooser_' + topNode['id']).append(
-        '<button class="chooser-btn">Pick Me</button>'
+        '<button class="btn btn-xs chooser-btn">Add Here</button>'
       );
       $('#chooser_' + topNode['id']).append(
         '<div id="chooser_' + structureNode['id'] + '" class="list_node">' +
@@ -181,7 +181,7 @@ $(function() {
       refreshStructureUI(structureNode);
     }
     $('#chooser_' + topNode['id']).append(
-      '<button class="chooser-btn">Pick Me</button>'
+      '<button class="btn btn-xs chooser-btn">Add Here</button>'
     );
   };
 
@@ -213,7 +213,7 @@ $(function() {
         '<button class="close">&times</button></div>'
       );
       $('#structure_node_chooser').append(
-        '<button class="chooser-btn">Pick Me</button>'
+        '<button class="btn btn-xs chooser-btn">Add Here</button>'
       );
       $('#structure_node_chooser').append(
         '<div id="chooser_' + structureNode['id'] + '" class="list_node">' +
@@ -222,7 +222,7 @@ $(function() {
       refreshStructureUI(structureNode);
     }
     $('#structure_node_chooser').append(
-      '<button class="chooser-btn">Pick Me</button>'
+      '<button class="btn btn-xs chooser-btn">Add Here</button>'
     );
     refreshNonLists();
     refreshAutocompletes();
@@ -307,8 +307,8 @@ $(function() {
     addStructureNode(0, programSpec['structure'], parentId, prevId);
     computeStructList(programSpec['structure'], [], true);
 
-    refreshListUI();
     $('#structure_node_modal').modal('hide');
+    refreshListUI();
   });
 
   $('#submit_code').click(function() {

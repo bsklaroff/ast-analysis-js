@@ -1,7 +1,6 @@
 #editor_container {
   position: relative;
-  height: 500px;
-  width: 700px;
+  height: 200px;
 }
 
 #editor {
@@ -16,10 +15,35 @@
   padding: 5px 0 0 0;
 }
 
-.list_container {
-  float: left;
+.list_input {
+  width: 100%;
 }
 
-.clearer {
-  clear: both;
+.node_list {
+  margin: 10px 0;
+  padding: 5px;
+  border: 1px solid aqua;
+  border-radius: 3px;
+  background-color: aliceblue;
+}
+
+.list_node {
+  margin: 3px 0;
+  padding: 5px;
+  border: 1px solid black;
+  border-radius: 5px;
+}
+
+.green {
+  border-color: darkgreen;
+  background-color: green;
+}
+
+.red {
+  border-color: darkred;
+  background-color: red;
+}
+
+.chooser-btn {
+  display: block;
 }
