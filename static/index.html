@@ -1,23 +1,33 @@
 <!DOCTYPE html>
 <html>
 <head>
-<link rel="stylesheet" href="/static/style.css" type="text/css"/>
+<link href="/static/style.css" rel="stylesheet" type="text/css"/>
+<link href="/static/jquery-ui-1.10.4.custom/css/ui-lightness/jquery-ui-1.10.4.custom.min.css" rel="stylesheet" type="text/css"/>
 <script src="/static/jquery-1.10.2.min.js" type="text/javascript"></script>
 <script src="/static/jquery-ui-1.10.4.custom/js/jquery-ui-1.10.4.custom.min.js" type="text/javascript"></script>
 <script src="/static/ace-builds/src-min-noconflict/ace.js" type="text/javascript" charset="utf-8"></script>
 <script src="/static/feedback.js" type="text/javascript"></script>
 </head>
 <body>
-<div id="container">
+<div id="editor_container">
   <div id="editor"></div>
 </div>
-<div id="whitelist_container">
-  <div id="whitelist"></div>
+<div id="whitelist_container" class="list_container">
+  <p>Whitelist</p>
+  <input type="text" id="whitelist_input" class="list_input">
+  <div id="whitelist_list"></div>
 </div>
-<div id="blacklist_container">
+<div id="blacklist_container" class="list_container">
+  <p>Blacklist</p>
+  <input type="text" id="blacklist_input" class="list_input">
+  <div id="blacklist_list"></div>
 </div>
-<div id="structure_container">
+<div id="structure_container" class="list_container">
+  <p>Structure</p>
+  <input type="text" id="structure_input" class="list_input">
+  <div id="structure_list"></div>
 </div>
+<div class="clearer"></div>
 <button id="submit_code">Test Code</button>
 </body>
 </html>
