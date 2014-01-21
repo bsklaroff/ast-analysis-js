@@ -1,35 +1,15 @@
 var http = require('http');
 var url = require('url');
 var fs = require('fs');
+var mime = require('mime');
 var acorn = require('acorn');
-
-var mimeMap = {
-  'css': 'text/css',
-  'js' : 'application/javascript',
-};
-
-var staticFiles = [
-  'jquery-1.10.2.min.js',
-  'jquery-1.10.2.min.map',
-  'ace-builds/src-min-noconflict/ace.js',
-  'ace-builds/src-min-noconflict/theme-monokai.js',
-  'ace-builds/src-min-noconflict/mode-javascript.js',
-  'ace-builds/src-min-noconflict/worker-javascript.js',
-  'feedback.js',
-  'style.css'
-];
-
-var getContentType = function(urlPath) {
-  var ext = urlPath.split('.').pop();
-  return mimeMap[ext] || 'application/octet-stream';
-};
 
 var getFeedback = function(reqObj) {
   return acorn.parse(reqObj.code);
 }
 
 var s = http.Server(function (req, res) {
-  var urlParts, urlPath, body;
+  var urlParts, urlPath, localPath, body;
   if (req.method == "GET") {
     urlParts = url.parse(req.url, true);
     urlPath = urlParts.pathname;
@@ -56,22 +36,28 @@ var s = http.Server(function (req, res) {
         }
       });
     } else if (urlPath.slice(0, 8) === '/static/') {
-      if (staticFiles.indexOf(urlPath.slice(8)) !== -1) {
-        fs.readFile(urlPath.slice(1), function(err, body) {
-          if (err) {
-            console.log('File missing: ' + urlPath);
-            res.writeHead(404);
-            res.end('Error 404 - File not found');
-          } else {
-            res.writeHead(200, {'Content-Type': getContentType(urlPath),
-                          'Content-Length': body.length});
-                          res.end(body);
-          }
-        });
-      } else {
-        res.writeHead(404);
-        res.end('Error 404 - File not found');
-      }
+      fs.realpath(urlPath.slice(1), function(err, absPath) {
+        var localPath, dirlen = __dirname.length;
+        if (!err && absPath.slice(0, dirlen) === __dirname &&
+            absPath.slice(dirlen, dirlen + 8) === '/static/') {
+          localPath = absPath.slice(dirlen + 1);
+          fs.readFile(localPath, function(err, body) {
+            if (err) {
+              console.log('File missing: ' + localPath);
+              res.writeHead(404);
+              res.end('Error 404 - File not found');
+            } else {
+              res.writeHead(200, {'Content-Type': mime.lookup(localPath),
+                            'Content-Length': body.length});
+              res.end(body);
+            }
+          });
+        } else {
+          console.log('Bad url: ' + urlPath);
+          res.writeHead(404);
+          res.end('Error 404 - File not found');
+        }
+      });
     } else {
       res.writeHead(301, {'Location': '/'});
       res.end();
