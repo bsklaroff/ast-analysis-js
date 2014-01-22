@@ -1,5 +1,8 @@
 Assignment for Khan Academy interview.
 
+To run:
+    node server.js
+
 Analyzes Javascript source code, tells user whether they fulfill basic
 requirements.
 
@@ -10,3 +13,4 @@ program MUST use a 'for loop' and a 'variable declaration'."
 program MUST NOT use a 'while loop' or an 'if statement'."
 + Determining the rough structure of the program. For example, "There should be
 a 'for loop' and inside of it there should be an 'if statement'."
+
