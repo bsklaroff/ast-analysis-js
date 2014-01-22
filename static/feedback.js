@@ -54,16 +54,11 @@ var nodeTypes = [
   'CatchClause',
   'ComprehensionBlock',
   'Identifier',
-  'Literal',
-  'UnaryOperator',
-  'BinaryOperator',
-  'LogicalOperator',
-  'AssignmentOperator',
-  'UpdateOperator'
+  'Literal'
 ];
 
 $(function() {
-  var programSpec, editor, nextStructId = 1;
+  var programSpec, editor, updateTimer, nextStructId = 1;
   programSpec = {
     whitelist: [],
     blacklist: [],
@@ -76,6 +71,120 @@ $(function() {
   editor = ace.edit('editor');
   editor.setTheme('ace/theme/monokai');
   editor.getSession().setMode('ace/mode/javascript');
+  editor.on('change', function() {
+    clearTimeout(updateTimer);
+    updateTimer = setTimeout(updateFeedback, 500);
+  });
+
+  var matchChildren = function(node, structure) {
+    var i, v, keys;
+    keys = Object.keys(node);
+    for (i = 0; i < keys.length; ++i) {
+      v = node[keys[i]];
+      if (!v) continue;
+      if (v instanceof Array && matchStructure(v, structure)) {
+        return true;
+      }
+      if (typeof v === 'object' && matchStructure([v], structure)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  var matchStructure = function(nodeList, structure) {
+    var i = 0, j = 0;
+    while (i < structure.length && j < nodeList.length) {
+      if (nodeList[j].type !== undefined &&
+          nodeList[j].type === structure[i].nodeType &&
+          matchChildren(nodeList[j], structure[i].children)) {
+        i++;
+      }
+      j++;
+    }
+    if (i === structure.length) {
+      return true;
+    } else {
+      for (j = 0; j < nodeList.length; j++) {
+        if (matchChildren(nodeList[j], structure)) {
+          return true;
+        }
+      }
+    }
+    return false;
+  };
+
+  var getNodeNames = function(ast, nodeList) {
+    var i;
+    if (nodeList.indexOf(ast.type) === -1) {
+      nodeList.push(ast.type);
+    }
+    for (i = 0; i < ast.body.length; i++) {
+      getNodeNames(ast.body[i], nodeList);
+    }
+  };
+
+  var updateFeedback = function() {
+    var i, ast, nodeName, allGood, nodeList = [], nodeNameVisitors = {};
+    var getNodeNames = function(node) {
+      if (nodeList.indexOf(node.type) === -1) {
+        nodeList.push(node.type);
+      }
+    };
+    for (i = 0; i < nodeTypes.length; i++) {
+      nodeNameVisitors[nodeTypes[i]] = getNodeNames;
+    }
+    ast = acorn.parse_dammit(editor.getValue());
+    acorn.walk.simple(ast, nodeNameVisitors);
+
+    allGood = true;
+    for (i = 0; i < programSpec['whitelist'].length; i++) {
+      nodeName = programSpec['whitelist'][i];
+      if (nodeList.indexOf(nodeName) === -1) {
+        allGood = false;
+        $('#whitelist_' + nodeName).removeClass('green');
+        $('#whitelist_' + nodeName).addClass('red');
+      } else {
+        $('#whitelist_' + nodeName).removeClass('red');
+        $('#whitelist_' + nodeName).addClass('green');
+      }
+    }
+    if (allGood) {
+      $('#whitelist_list').removeClass('red');
+      $('#whitelist_list').addClass('green');
+    } else {
+      $('#whitelist_list').removeClass('green');
+      $('#whitelist_list').addClass('red');
+    }
+
+    allGood = true;
+    for (i = 0; i < programSpec['blacklist'].length; i++) {
+      nodeName = programSpec['blacklist'][i];
+      if (nodeList.indexOf(nodeName) !== -1) {
+        allGood = false;
+        $('#blacklist_' + nodeName).removeClass('green');
+        $('#blacklist_' + nodeName).addClass('red');
+      } else {
+        $('#blacklist_' + nodeName).removeClass('red');
+        $('#blacklist_' + nodeName).addClass('green');
+      }
+    }
+    if (allGood) {
+      $('#blacklist_list').removeClass('red');
+      $('#blacklist_list').addClass('green');
+    } else {
+      $('#blacklist_list').removeClass('green');
+      $('#blacklist_list').addClass('red');
+    }
+
+    if (matchStructure([ast], programSpec['structure'])) {
+      $('#structure_list').removeClass('red');
+      $('#structure_list').addClass('green');
+    } else {
+      $('#structure_list').addClass('red');
+      $('#structure_list').removeClass('green');
+    }
+  };
 
   var computeStructList = function(nodeList, allStructIds, topLevel) {
     var i, nodeType;
@@ -226,6 +335,7 @@ $(function() {
     );
     refreshNonLists();
     refreshAutocompletes();
+    updateFeedback();
   };
 
   refreshListUI();
@@ -242,7 +352,7 @@ $(function() {
       }
     }
     return false;
-  }
+  };
 
   $('.node_list').on('click', '.close', function(e) {
     var nodeDiv, splitId, listName, nodeType, idx;
@@ -309,19 +419,5 @@ $(function() {
 
     $('#structure_node_modal').modal('hide');
     refreshListUI();
-  });
-
-  $('#submit_code').click(function() {
-    $.ajax({
-      type: 'GET',
-      url: '/feedback',
-      data: {
-        code: editor.getValue()
-      },
-      dataType: 'json',
-      success: function(data) {
-        console.log(data);
-      }
-    });
   });
 });

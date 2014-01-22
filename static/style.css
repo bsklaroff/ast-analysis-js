@@ -1,6 +1,6 @@
 #editor_container {
   position: relative;
-  height: 200px;
+  height: 300px;
 }
 
 #editor {
@@ -36,12 +36,12 @@
 
 .green {
   border-color: darkgreen;
-  background-color: green;
+  background-color: #33FF33;
 }
 
 .red {
   border-color: darkred;
-  background-color: red;
+  background-color: #FF6666;
 }
 
 .chooser-btn {

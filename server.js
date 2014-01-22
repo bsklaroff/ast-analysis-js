@@ -2,28 +2,13 @@ var http = require('http');
 var url = require('url');
 var fs = require('fs');
 var mime = require('mime');
-var acorn = require('acorn');
-
-var getFeedback = function(reqObj) {
-  return acorn.parse(reqObj.code);
-}
 
 var s = http.Server(function (req, res) {
   var urlParts, urlPath, localPath, body;
   if (req.method == "GET") {
     urlParts = url.parse(req.url, true);
     urlPath = urlParts.pathname;
-    if (urlPath === '/feedback') {
-      if (urlParts.query.code !== undefined) {
-        body = new Buffer(JSON.stringify(getFeedback(urlParts.query)));
-        res.writeHead(200, {'Content-Type': 'application/json',
-                      'Content-Length': body.length});
-        res.end(body);
-      } else {
-        res.writeHead(400);
-        res.end("Error 400 - Missing query parameter 'code'");
-      }
-    } else if (urlPath === '/') {
+    if (urlPath === '/') {
       fs.readFile('static/index.html', function(err, body) {
         if (err) {
           console.log('Error loading index.html');
