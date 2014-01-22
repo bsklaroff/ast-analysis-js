@@ -1,6 +1,7 @@
 Assignment for Khan Academy interview.
 
 To run:
+
     node server.js
 
 Analyzes Javascript source code, tells user whether they fulfill basic
